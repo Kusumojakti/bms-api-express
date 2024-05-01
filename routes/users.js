@@ -1,7 +1,6 @@
-("use strict");
+"use strict";
 
 const express = require("express");
-const createUserValidator = require("../validators/CreateUserValidators");
 const UsersController = require("../controllers/UserControllers");
 const router = express.Router();
 

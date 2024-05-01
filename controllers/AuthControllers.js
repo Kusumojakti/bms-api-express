@@ -58,31 +58,6 @@ async function login(req, res) {
     });
 
     res.json({ message: "success", accesstoken });
-
-    //   const payload = {
-    //     sub: user.id,
-    //     exp: new Date().setDate(new Date().getDate() + 10),
-    //     iat: new Date().getTime(),
-    //   };
-
-    //   const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-    //     algorithm: "HS512",
-    //   });
-
-    //   user.token = token;
-    //   await user.save();
-
-    //   return res.status(200).json({
-    //     success: true,
-    //     code: 200,
-    //     message: "Login Success",
-    //     data: {
-    //       _id: user.id,
-    //       name: user.name,
-    //       email: user.email,
-    //       token: token,
-    //     },
-    //   });
   } catch (err) {
     return response500(res, err.message);
   }

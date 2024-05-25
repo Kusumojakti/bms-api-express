@@ -78,12 +78,12 @@ async function detail(req, res) {
 async function update(req, res) {
   try {
     const ews = await Ews.findByPk(req.params.id);
-    if (!user) return response404(res, "EWS not found");
+    if (!ews) return response404(res, "EWS not found");
 
-    user.nama_ews = req.body.nama_ews || user.nama_ews;
-    user.alamat = req.body.alamat || user.alamat;
-    user.lat = req.body.lat || user.lat;
-    user.long = req.body.long || user.long;
+    ews.nama_ews = req.body.nama_ews || ews.nama_ews;
+    ews.alamat = req.body.alamat || ews.alamat;
+    ews.lat = req.body.lat || ews.lat;
+    ews.long = req.body.long || ews.long;
 
     await ews.save();
 

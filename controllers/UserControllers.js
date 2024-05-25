@@ -3,7 +3,10 @@
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const Users = require("../models/user");
+const roles = require("../models/role");
+const Sequelize = require("sequelize");
 const { response500, response404 } = require("../helpers/response");
+const role = require("../models/role");
 
 async function store(req, res) {
   try {
@@ -46,7 +49,12 @@ async function store(req, res) {
 async function show(req, res) {
   try {
     const user = await Users.findAll({
-      attributes: ["user_id", "name", "role"],
+      attributes: ["id", "name", "id_roles"],
+      // include: {
+      //   model: role,
+      //   as: "role",
+      //   attributes: ["name_role"],
+      // },
     });
 
     return res.status(200).json({
@@ -56,6 +64,7 @@ async function show(req, res) {
       data: user,
     });
   } catch (err) {
+    console.log(err);
     return response500(res);
   }
 }

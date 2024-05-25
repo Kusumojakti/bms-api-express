@@ -30,11 +30,12 @@ async function login(req, res) {
     if (!check) return response400(res, "Wrong Password!");
     const id = user.id;
     const email = user.email;
+    const role = user.id_roles;
     const accesstoken = jwt.sign(
       { id, email },
       process.env.ACCESS_TOKEN_SECRET,
       {
-        expiresIn: "20s",
+        expiresIn: "1d",
       }
     );
     const refreshtoken = jwt.sign(
@@ -57,12 +58,35 @@ async function login(req, res) {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.json({ message: "success", accesstoken });
+    res.json({ message: "success", accesstoken, role });
   } catch (err) {
     return response500(res, err.message);
   }
 }
 
+const logout = async (req, res) => {
+  const accesstoken = req.cookies.accesstoken;
+  if (!accesstoken) return res.sendStatus(204);
+  const user = await Users.findAll({
+    where: {
+      refresh_token: accesstoken,
+    },
+  });
+  if (!user) return res.sendStatus(204);
+  const userid = Users.id;
+  await Users.update(
+    { accesstoken: null },
+    {
+      where: {
+        id: userid,
+      },
+    }
+  );
+  res.clearCookie("refreshToken");
+  return res.sendStatus(200);
+};
+
 module.exports = {
   login,
+  logout,
 };

@@ -1,29 +1,27 @@
 "use strict";
 
-require("../config/sequelize");
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
+const Users = require("../models/user");
 const { response401 } = require("../helpers/response");
+require("dotenv").config();
 
 async function JwtMiddleware(req, res, next) {
   try {
-    const token = req.headers.authorization.split(" ")[1];
+    const token = req.header("Authorization").split(" ")[1];
 
-    // verification step 1 = verify token by key
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    // // verif token
+    // const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    console.log(token);
 
-    // verification step 2 = verify token by user id
-    const user = await User.findOne({
-      _id: decoded.sub,
-    });
-    if (!user) return response401(res);
+    // // verif user
+    // const user = await Users.findOne({ where: { id: decode.sub } });
 
-    // verification step 3 = verify token by same token
-    if (user.token !== token) return response401(res);
+    // if (!user) return response401(res);
 
     next();
   } catch (err) {
-    return response401(res);
+    console.log(err);
+    return response401(res, err.message);
   }
 }
 

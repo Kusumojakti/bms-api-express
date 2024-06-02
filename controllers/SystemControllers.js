@@ -16,7 +16,6 @@ const influxDBClient = require("../config/influxdb");
 async function storeTemperature(req, res) {
   try {
     const error = validationResult(req);
-    // console.log(req.headers['x-api-key'])
     if (!error.isEmpty())
       return response400(
         res,
@@ -29,7 +28,7 @@ async function storeTemperature(req, res) {
       "ns"
     );
     const point = new Point("conditions")
-      .tag("id", "EWS001")
+      .tag("id", req.body.id) // Menggunakan req.body.id untuk tag EWS ID
       .floatField("temperature", req.body.temp)
       .floatField("voltage", req.body.voltage)
       .floatField("ampere", req.body.ampere);
@@ -42,6 +41,7 @@ async function storeTemperature(req, res) {
       code: 200,
       message: "Data berhasil disimpan",
       data: {
+        id: req.body.id,
         temp: req.body.temp,
         voltage: req.body.voltage,
         ampere: req.body.ampere,
@@ -54,22 +54,14 @@ async function storeTemperature(req, res) {
 
 async function showTemperature(req, res) {
   try {
-    // const refreshToken = req.headers["accesstoken"];
-    // if (!refreshToken) {
-    //   return response403(res);
-    // }
-
-    // const user = await Users.findOne({ where: { apikey: refreshToken } });
-    // if (!user) {
-    //   return response400(res, "ApiKey tidak valid");
-    // }
-
+    const ewsId = req.params.id; // Mendapatkan ID EWS dari parameter URL
     const queryApi = influxDBClient.getQueryApi(process.env.INFLUXDB_ORG);
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
         |> range(start: -1h)
-  |> filter(fn: (r) => r["_measurement"] == "conditions")
-  |> filter(fn: (r) => r["_field"] == "ampere" or r["_field"] == "temperature" or r["_field"] == "voltage")
-  |> yield(name: "mean")`;
+        |> filter(fn: (r) => r["_measurement"] == "conditions")
+        |> filter(fn: (r) => r["_field"] == "ampere" or r["_field"] == "temperature" or r["_field"] == "voltage")
+        |> filter(fn: (r) => r["id"] == "${ewsId}")
+        |> yield(name: "mean")`;
     const result = [];
     queryApi.queryRows(fluxQuery, {
       next(row, tableMeta) {

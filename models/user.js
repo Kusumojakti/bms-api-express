@@ -1,7 +1,7 @@
 "use strict";
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize");
-const Role = require("./role");
+const role = require("./role");
 
 class User extends Model {
   /**
@@ -21,7 +21,13 @@ User.init(
     name: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    id_roles: DataTypes.INTEGER,
+    id_roles: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: role,
+        key: "id",
+      },
+    },
     refresh_token: DataTypes.TEXT,
   },
   {

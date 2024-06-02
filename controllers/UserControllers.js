@@ -50,11 +50,6 @@ async function show(req, res) {
   try {
     const user = await Users.findAll({
       attributes: ["id", "name", "id_roles"],
-      // include: {
-      //   model: role,
-      //   as: "role",
-      //   attributes: ["name_role"],
-      // },
     });
 
     return res.status(200).json({
@@ -92,7 +87,7 @@ async function update(req, res) {
 
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
-    user.role_id = req.body.role_id || user.role_id;
+    user.id_roles = req.body.id_roles || user.id_roles;
 
     await user.save();
 

@@ -49,12 +49,7 @@ async function store(req, res) {
 async function show(req, res) {
   try {
     const user = await User.findAll({
-      include: [
-        {
-          model: Role,
-          as: "role",
-        },
-      ],
+      attributes: ["id", "name", "id_roles"],
     });
 
     return res.status(200).json({

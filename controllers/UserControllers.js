@@ -2,11 +2,8 @@
 
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
-const Users = require("../models/user");
-const roles = require("../models/role");
-const Sequelize = require("sequelize");
-const { response500, response404 } = require("../helpers/response");
-const role = require("../models/role");
+const User = require("../models/user");
+const Role = require("../models/role");
 
 async function store(req, res) {
   try {
@@ -22,13 +19,16 @@ async function store(req, res) {
     const salt = await bcrypt.genSalt();
     const hashPassword = await bcrypt.hash(req.body.password, salt);
 
+    const userCount = await User.count();
+    const newUserId = `US${String(userCount + 1).padStart(3, "0")}`;
+
     const data = {
-      id: req.body.user_id,
+      id: newUserId,
       name: req.body.name,
       email: req.body.email,
       password: hashPassword,
     };
-    const newUser = await Users.create(data);
+    const newUser = await User.create(data);
     if (newUser) {
       return res.status(201).json({
         success: true,
@@ -48,8 +48,13 @@ async function store(req, res) {
 
 async function show(req, res) {
   try {
-    const user = await Users.findAll({
-      attributes: ["id", "name", "id_roles"],
+    const user = await User.findAll({
+      include: [
+        {
+          model: Role,
+          as: "role",
+        },
+      ],
     });
 
     return res.status(200).json({
@@ -60,14 +65,21 @@ async function show(req, res) {
     });
   } catch (err) {
     console.log(err);
-    return response500(res);
+    return res.status(500).json({
+      success: false,
+      code: 500,
+      message: err.message,
+    });
   }
 }
 
 async function detail(req, res) {
   try {
-    const user = await Users.findByPk(req.params.id);
-    if (!user) return response404(res, "User not found");
+    const user = await User.findByPk(req.params.id);
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
 
     return res.json({
       success: true,
@@ -76,14 +88,17 @@ async function detail(req, res) {
       data: user,
     });
   } catch (err) {
-    return response404(err);
+    return res.status(500).json({ success: false, message: err.message });
   }
 }
 
 async function update(req, res) {
   try {
-    const user = await Users.findByPk(req.params.id);
-    if (!user) return response404(res, "User tidak ditemukan");
+    const user = await User.findByPk(req.params.id);
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "User tidak ditemukan" });
 
     user.name = req.body.name || user.name;
     user.email = req.body.email || user.email;
@@ -98,14 +113,17 @@ async function update(req, res) {
       data: user,
     });
   } catch (err) {
-    return response500(res, err.message);
+    return res.status(500).json({ success: false, message: err.message });
   }
 }
 
 async function destroy(req, res) {
   try {
-    const user = await Users.findByPk(req.params.id);
-    if (!user) return response404(res, "User tidak ditemukan");
+    const user = await User.findByPk(req.params.id);
+    if (!user)
+      return res
+        .status(404)
+        .json({ success: false, message: "User tidak ditemukan" });
 
     await user.destroy();
 
@@ -115,7 +133,7 @@ async function destroy(req, res) {
       message: "Data berhasil dihapus",
     });
   } catch (err) {
-    return response500(res, err.message);
+    return res.status(500).json({ success: false, message: err.message });
   }
 }
 

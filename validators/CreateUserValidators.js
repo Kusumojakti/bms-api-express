@@ -4,12 +4,6 @@ const { body } = require("express-validator");
 const Users = require("../models/user");
 
 const createUserValidator = [
-  body("user_id")
-    .notEmpty()
-    .withMessage("ID must be required")
-    .isString()
-    .withMessage("Invalid ID"),
-
   body("name")
     .notEmpty()
     .withMessage("Name must be required")

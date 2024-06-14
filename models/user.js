@@ -1,39 +1,35 @@
 "use strict";
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/sequelize");
-const role = require("./role");
+const Role = require("./role");
 
 class User extends Model {
-  /**
-   * Helper method for defining associations.
-   * This method is not a part of Sequelize lifecycle.
-   * The `models/index` file will call this method automatically.
-   */
   static associate(models) {
-    // define association here
-    User.belongsTo(models.Role, { foreignKey: "id_roles", as: "role" });
+    User.belongsTo(models.Role, {
+      foreignKey: "id_roles",
+      as: "role",
+    });
   }
 }
 
 User.init(
   {
-    // id: DataTypes.STRING,
     name: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
     id_roles: {
       type: DataTypes.INTEGER,
       references: {
-        model: role,
+        model: Role,
         key: "id",
       },
     },
     refresh_token: DataTypes.TEXT,
   },
   {
+    sequelize,
     modelName: "User",
     tableName: "users",
-    sequelize,
   }
 );
 

@@ -1,4 +1,5 @@
 "use strict";
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -23,7 +24,7 @@ module.exports = {
       id_roles: {
         type: Sequelize.INTEGER,
         references: {
-          model: "Roles",
+          model: "roles",
           key: "id",
         },
         defaultValue: 2,

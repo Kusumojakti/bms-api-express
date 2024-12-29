@@ -16,8 +16,11 @@ async function store(req, res) {
       });
     }
 
+    const deviceCounts = await Ews.count();
+    const newDeviceId = `EWS${String(deviceCounts + 1).padStart(3, "0")}`;
+
     const data = {
-      id: req.body.id,
+      id: newDeviceId,
       nama_ews: req.body.nama_ews,
       alamat: req.body.alamat,
       lat: req.body.lat,

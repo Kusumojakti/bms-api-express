@@ -14,11 +14,11 @@ const EwsValidators = [
 
   //     return true;
   //   }),
-  body("id")
-    .notEmpty()
-    .withMessage("Name must be required!")
-    .isString()
-    .withMessage("Invalid input name"),
+  // body("id")
+  //   .notEmpty()
+  //   .withMessage("Name must be required!")
+  //   .isString()
+  //   .withMessage("Invalid input name"),
 
   body("nama_ews")
     .notEmpty()

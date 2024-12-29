@@ -7,7 +7,7 @@ const verifytoken = require("../middleware/VerifyToken");
 // const storeSuhuValidator = require("../validators/storeSuhuValidator");
 // const storeVolumeValidator = require("../validators/storeVolumeValidator");
 
-router.post("/store-conditions", SystemControllers.storeTemperature);
-router.get("/conditions/:id", SystemControllers.showTemperature);
+router.post("/store-conditions", SystemControllers.storeData);
+router.get("/conditions/:id", SystemControllers.showData);
 
 module.exports = router;

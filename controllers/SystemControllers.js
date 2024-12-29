@@ -13,7 +13,7 @@ const InfluxDBClient = require("../config/influxdb");
 const { Point } = require("@influxdata/influxdb-client");
 const influxDBClient = require("../config/influxdb");
 
-async function storeTemperature(req, res) {
+async function storeData(req, res) {
   try {
     const error = validationResult(req);
     if (!error.isEmpty())
@@ -28,10 +28,13 @@ async function storeTemperature(req, res) {
       "ns"
     );
     const point = new Point("conditions")
-      .tag("id", req.body.id) // Menggunakan req.body.id untuk tag EWS ID
-      .floatField("temperature", req.body.temp)
+      .tag("id", req.body.id)
+      .floatField("temp", req.body.temp)
       .floatField("voltage", req.body.voltage)
-      .floatField("ampere", req.body.ampere);
+      .floatField("ampere", req.body.ampere)
+      // adding new
+      .floatField("soc", req.body.soc)
+      .floatField("soh", req.body.soh);
     storeData.writePoint(point);
 
     await storeData.flush();
@@ -45,6 +48,8 @@ async function storeTemperature(req, res) {
         temp: req.body.temp,
         voltage: req.body.voltage,
         ampere: req.body.ampere,
+        soh: req.body.soh,
+        soc: req.body.soc,
       },
     });
   } catch (err) {
@@ -52,14 +57,14 @@ async function storeTemperature(req, res) {
   }
 }
 
-async function showTemperature(req, res) {
+async function showData(req, res) {
   try {
-    const ewsId = req.params.id; // Mendapatkan ID EWS dari parameter URL
+    const ewsId = req.params.id;
     const queryApi = influxDBClient.getQueryApi(process.env.INFLUXDB_ORG);
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
         |> range(start: -1h)
         |> filter(fn: (r) => r["_measurement"] == "conditions")
-        |> filter(fn: (r) => r["_field"] == "ampere" or r["_field"] == "temperature" or r["_field"] == "voltage")
+        |> filter(fn: (r) => r["_field"] == "ampere" or r["_field"] == "temp" or r["_field"] == "voltage" or r["_field"] == "soh" or r["_field"] == "soc")
         |> filter(fn: (r) => r["id"] == "${ewsId}")
         |> yield(name: "mean")`;
     const result = [];
@@ -91,6 +96,6 @@ async function showTemperature(req, res) {
 }
 
 module.exports = {
-  storeTemperature,
-  showTemperature,
+  storeData,
+  showData,
 };

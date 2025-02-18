@@ -112,6 +112,7 @@ async function destroy(req, res) {
       success: true,
       code: 200,
       message: "Data berhasil dihapus",
+      data: ews,
     });
   } catch (err) {
     return response500(res, err.message);

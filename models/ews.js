@@ -15,7 +15,6 @@ class ews extends Model {
 }
 ews.init(
   {
-    // id: DataTypes.STRING,
     nama_ews: DataTypes.STRING,
     alamat: DataTypes.STRING,
     lat: DataTypes.FLOAT,

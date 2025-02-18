@@ -30,14 +30,16 @@ async function login(req, res) {
     if (!check) return response400(res, "Wrong Password!");
     const id = user.id;
     const email = user.email;
-    const role = user.id_roles;
+    const role = user.role;
+    const username = user.name;
     const accesstoken = jwt.sign(
-      { id, email },
+      { sub: id, email, role, username },
       process.env.ACCESS_TOKEN_SECRET,
       {
         expiresIn: "1d",
       }
     );
+
     const refreshtoken = jwt.sign(
       { id, email },
       process.env.REFRESH_TOKEN_SECRET,
@@ -58,7 +60,12 @@ async function login(req, res) {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.json({ message: "success", accesstoken, role });
+    res.json({
+      success: true,
+      message: "success",
+      accesstoken,
+      data: user,
+    });
   } catch (err) {
     return response500(res, err.message);
   }
@@ -83,7 +90,10 @@ const logout = async (req, res) => {
     }
   );
   res.clearCookie("refreshToken");
-  return res.sendStatus(200);
+  return res.json({
+    success: true,
+    message: "Anda berhasil Logout",
+  });
 };
 
 module.exports = {

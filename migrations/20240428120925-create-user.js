@@ -21,16 +21,13 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      id_roles: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "roles",
-          key: "id",
-        },
-        defaultValue: 2,
+      role: {
+        type: Sequelize.ENUM,
+        values: ["admin", "teknisi"],
+        defaultValue: "teknisi",
       },
-      refresh_token: {
-        type: Sequelize.TEXT,
+      token: {
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,

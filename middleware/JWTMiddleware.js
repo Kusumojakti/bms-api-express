@@ -10,13 +10,12 @@ async function JwtMiddleware(req, res, next) {
     const token = req.header("Authorization").split(" ")[1];
 
     // // verif token
-    // const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    console.log(token);
+    const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    console.log("Decoded Token:", decode);
 
-    // // verif user
-    // const user = await Users.findOne({ where: { id: decode.sub } });
+    const user = await Users.findOne({ where: { id: decode.sub } });
 
-    // if (!user) return response401(res);
+    if (!user) return response401(res);
 
     next();
   } catch (err) {

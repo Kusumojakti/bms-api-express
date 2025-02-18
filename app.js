@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 });
 app.use("/api/user", JwtMiddleware, UserRoutes);
 app.use("/api/auth", AuthRoutes);
-app.use("/api/ews", EwsRoutes);
+app.use("/api/ews", JwtMiddleware, EwsRoutes);
 app.use("/api/iot", SystemRoutes);
 
 app.listen(process.env.PORT, () => {

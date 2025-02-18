@@ -3,7 +3,6 @@
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
-const Role = require("../models/role");
 
 async function store(req, res) {
   try {
@@ -49,7 +48,7 @@ async function store(req, res) {
 async function show(req, res) {
   try {
     const user = await User.findAll({
-      attributes: ["id", "name", "id_roles"],
+      attributes: ["id", "name", "email", "role"],
     });
 
     return res.status(200).json({

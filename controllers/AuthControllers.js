@@ -63,8 +63,8 @@ async function login(req, res) {
     res.json({
       success: true,
       message: "success",
-      accesstoken,
-      data: user,
+      data: { accesstoken },
+      user,
     });
   } catch (err) {
     return response500(res, err.message);

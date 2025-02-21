@@ -31,6 +31,9 @@ const io = new Server(server, {
     origin: "*",
     methods: ["GET", "POST"],
   },
+  perMessageDeflate: {
+    threshold: 1024,
+  },
 });
 
 io.use((socket, next) => {

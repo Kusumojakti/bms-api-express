@@ -31,48 +31,48 @@ const io = new Server(server, {
     origin: "*",
     methods: ["GET", "POST"],
   },
+  transports: ["websocket", "polling"],
   perMessageDeflate: {
     threshold: 1024,
   },
 });
 
-// io.use((socket, next) => {
-//   let token = socket.handshake.auth?.token;
-//   let apiKey = socket.handshake.auth?.apiKey;
+io.use((socket, next) => {
+  let token = socket.handshake.auth?.token;
+  let apiKey = socket.handshake.auth?.apiKey;
 
-//   if (!token) {
-//     token = socket.handshake.headers["authorization"]?.split(" ")[1];
-//   }
+  if (!token) {
+    token = socket.handshake.headers["authorization"]?.split(" ")[1];
+  }
 
-//   if (!apiKey) {
-//     apiKey = socket.handshake.headers["apikey"];
-//   }
+  if (!apiKey) {
+    apiKey = socket.handshake.headers["apikey"];
+  }
 
-//   if (token) {
-//     try {
-//       const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-//       console.log(
-//         "✅ User Authenticated:",
-//         `${decoded.username} with ${socket.id}`
-//       );
-//       socket.user = decoded;
-//       return next();
-//     } catch (error) {
-//       console.error("❌ JWT Verification Error:", error.message);
-//       return next(new Error("Invalid Token"));
-//     }
-//   }
+  if (token) {
+    try {
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+      console.log(
+        "✅ User Authenticated:",
+        `${decoded.username} with ${socket.id}`
+      );
+      socket.user = decoded;
+      return next();
+    } catch (error) {
+      console.error("❌ JWT Verification Error:", error.message);
+      return next(new Error("Invalid Token"));
+    }
+  }
 
-//   if (apiKey && apiKey === process.env.API_KEY_SECRET) {
-//     console.log("✅ IoT Device Connected " + socket.id);
-//     socket.isIoT = true;
-//     return next();
-//   }
+  if (apiKey && apiKey === process.env.API_KEY_SECRET) {
+    console.log("✅ IoT Device Connected " + socket.id);
+    socket.isIoT = true;
+    return next();
+  }
 
-//   return next(new Error("Authentication Error: No Valid Token or API Key"));
-// })
-io.on("connection", (socket) => {
-  // console.log("User Connected: " + socket.id);
+  return next(new Error("Authentication Error: No Valid Token or API Key"));
+}).on("connection", (socket) => {
+  console.log("User Connected: " + socket.id);
 
   socket.on("message", (data) => {
     console.log("Message received: ", data);

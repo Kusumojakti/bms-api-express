@@ -15,6 +15,8 @@ const EwsRoutes = require("./routes/EwsRoutes");
 const SystemRoutes = require("./routes/SystemRoutes");
 
 const app = express();
+const http = require("http");
+const server = http.createServer(app);
 
 app.use(cookieParser());
 app.use(cors());
@@ -76,8 +78,8 @@ app.use("/api/ews", JwtMiddleware, EwsRoutes);
 app.use("/api/iot", SystemRoutes);
 
 // Jalankan server
-// server.listen(process.env.PORT, () => {
-//   console.log(`Server Running on PORT ${process.env.PORT}`);
-// });
+server.listen(process.env.PORT || 3000, () => {
+  console.log(`Server Running on PORT ${process.env.PORT || 3000}`);
+});
 
 module.exports = app;

@@ -46,9 +46,9 @@ function sendDatatoWebsocket(data) {
 
 InitializeWebsocket();
 
-server.listen(process.env.PORT || 3000, () => {
-  console.log(`Server Running on PORT ${process.env.PORT || 3000}`);
-});
+// server.listen(process.env.PORT || 3000, () => {
+//   console.log(`Server Running on PORT ${process.env.PORT || 3000}`);
+// });
 
 // ✅ Pastikan ekspor dilakukan dengan cara yang benar
 module.exports = { InitializeWebsocket, sendDatatoWebsocket };

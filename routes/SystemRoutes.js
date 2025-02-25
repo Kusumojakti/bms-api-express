@@ -8,6 +8,6 @@ const verifytoken = require("../middleware/VerifyToken");
 // const storeVolumeValidator = require("../validators/storeVolumeValidator");
 
 router.post("/store-conditions", SystemControllers.storeData);
-router.get("/conditions/:id", SystemControllers.showData);
+router.get("/conditions/", SystemControllers.showData);
 
 module.exports = router;

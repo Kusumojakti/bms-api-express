@@ -60,27 +60,29 @@ async function storeData(req, res) {
 
 async function showData(req, res) {
   try {
-    const ewsId = req.params.id.trim();
-    console.log(`Mencari EWS dengan ID: '${ewsId}'`);
+    console.log("Mengambil semua data EWS...");
 
-    const ews = await Ews.findOne({ where: { id: ewsId } });
+    // Ambil semua data EWS dari database
+    const ewsList = await Ews.findAll();
 
-    console.log(`Hasil query EWS:`, ews);
-    if (!ews) {
+    console.log(`Total EWS ditemukan: ${ewsList.length}`);
+
+    if (!ewsList || ewsList.length === 0) {
       return res.status(404).json({
         success: false,
         code: 404,
-        message: `EWS dengan ID '${ewsId}' tidak ditemukan.`,
+        message: "Tidak ada data EWS yang ditemukan.",
       });
     }
 
+    // Ambil semua data condition dari InfluxDB tanpa filter ID
     const queryApi = influxDBClient.getQueryApi(process.env.INFLUXDB_ORG);
     const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
-        |> range(start: -15m)
-        |> filter(fn: (r) => r["_measurement"] == "conditions")
-        |> filter(fn: (r) => r["_field"] == "ampere" or r["_field"] == "temp" or r["_field"] == "voltage" or r["_field"] == "soh" or r["_field"] == "soc")
-        |> filter(fn: (r) => r["id"] == "${ewsId}")
-        |> yield(name: "mean")`;
+            |> range(start: -1h)
+            |> filter(fn: (r) => r["_measurement"] == "conditions")
+            |> filter(fn: (r) => r["_field"] == "ampere" or r["_field"] == "temp" or r["_field"] == "voltage" or r["_field"] == "soh" or r["_field"] == "soc")
+            |> yield(name: "mean")`;
+
     const result = [];
     queryApi.queryRows(fluxQuery, {
       next(row, tableMeta) {
@@ -96,21 +98,24 @@ async function showData(req, res) {
         });
       },
       complete() {
+        // Menyusun hasil agar setiap EWS memiliki condition sesuai dengan ID-nya
+        const ewsWithCondition = ewsList.map((ews) => {
+          return {
+            ...ews.toJSON(),
+            condition: result.filter((cond) => cond.id === ews.id) || [],
+          };
+        });
+
         res.send({
           success: true,
           code: 200,
           message: "Data fetched successfully",
-          data: { ews, condition: result },
+          data: {
+            ews: ewsWithCondition,
+          },
         });
       },
     });
-
-    // res.json({
-    //   success: true,
-    //   code: 200,
-    //   message: "Data ditemukan",
-    //   data: ews,
-    // });
   } catch (err) {
     console.error("Error saat mengambil data EWS:", err);
     return res.status(500).json({

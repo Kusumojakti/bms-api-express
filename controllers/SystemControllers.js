@@ -66,7 +66,6 @@ async function showData(req, res) {
     const ews = await Ews.findOne({ where: { id: ewsId } });
 
     console.log(`Hasil query EWS:`, ews);
-
     if (!ews) {
       return res.status(404).json({
         success: false,
@@ -75,12 +74,43 @@ async function showData(req, res) {
       });
     }
 
-    res.json({
-      success: true,
-      code: 200,
-      message: "Data ditemukan",
-      data: ews,
+    const queryApi = influxDBClient.getQueryApi(process.env.INFLUXDB_ORG);
+    const fluxQuery = `from(bucket: "${process.env.INFLUXDB_BUCKET}")
+        |> range(start: -15m)
+        |> filter(fn: (r) => r["_measurement"] == "conditions")
+        |> filter(fn: (r) => r["_field"] == "ampere" or r["_field"] == "temp" or r["_field"] == "voltage" or r["_field"] == "soh" or r["_field"] == "soc")
+        |> filter(fn: (r) => r["id"] == "${ewsId}")
+        |> yield(name: "mean")`;
+    const result = [];
+    queryApi.queryRows(fluxQuery, {
+      next(row, tableMeta) {
+        const obj = tableMeta.toObject(row);
+        result.push(obj);
+      },
+      error(error) {
+        console.error(error);
+        return res.status(500).json({
+          success: false,
+          code: 500,
+          message: error.message,
+        });
+      },
+      complete() {
+        res.send({
+          success: true,
+          code: 200,
+          message: "Data fetched successfully",
+          data: { ews, condition: result },
+        });
+      },
     });
+
+    // res.json({
+    //   success: true,
+    //   code: 200,
+    //   message: "Data ditemukan",
+    //   data: ews,
+    // });
   } catch (err) {
     console.error("Error saat mengambil data EWS:", err);
     return res.status(500).json({
